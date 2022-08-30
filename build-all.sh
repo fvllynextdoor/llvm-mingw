@@ -19,6 +19,7 @@ set -e
 LLVM_ARGS=""
 MINGW_ARGS=""
 CFGUARD_ARGS="--disable-cfguard"
+MINGW_TOOLS_ARGS=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -57,6 +58,10 @@ while [ $# -gt 0 ]; do
     --no-runtimes)
         NO_RUNTIMES=1
         ;;
+    --skip-include-triplet-prefix)
+        MINGW_ARGS="$MINGW_ARGS $1"
+        MINGW_TOOLS_ARGS="$MINGW_TOOLS_ARGS $1"
+        ;;
     *)
         if [ -n "$PREFIX" ]; then
             echo Unrecognized parameter $1
@@ -68,7 +73,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 if [ -z "$PREFIX" ]; then
-    echo "$0 [--enable-asserts] [--disable-dylib] [--full-llvm] [--with-python] [--symlink-projects] [--disable-lldb] [--disable-lldb-mi] [--disable-clang-tools-extra] [--host=triple] [--with-default-win32-winnt=0x601] [--with-default-msvcrt=ucrt] [--enable-cfguard|--disable-cfguard] [--no-runtimes] dest"
+    echo "$0 [--enable-asserts] [--disable-dylib] [--full-llvm] [--with-python] [--symlink-projects] [--disable-lldb] [--disable-lldb-mi] [--disable-clang-tools-extra] [--host=triple] [--with-default-win32-winnt=0x601] [--with-default-msvcrt=ucrt] [--enable-cfguard|--disable-cfguard] [--no-runtimes] [--skip-include-triplet-prefix] dest"
     exit 1
 fi
 
@@ -87,7 +92,7 @@ if [ -z "$FULL_LLVM" ]; then
     ./strip-llvm.sh $PREFIX
 fi
 ./install-wrappers.sh $PREFIX
-./build-mingw-w64-tools.sh $PREFIX
+./build-mingw-w64-tools.sh $PREFIX $MINGW_TOOLS_ARGS
 if [ -n "$NO_RUNTIMES" ]; then
     exit 0
 fi

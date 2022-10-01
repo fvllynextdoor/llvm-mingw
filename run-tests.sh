@@ -297,12 +297,7 @@ for arch in $ARCHS; do
             $RUN $file
         done
 
-        # These don't strictly require running native instead of in Wine
-        # (except for sanitizers, but they are already filtered out at this
-        # point), but some of the error situations trigger crashes, which
-        # might not work robustly on all exotic Wine configurations - thus
-        # only run these tests on native Windows.
-        if [ -n "$NATIVE" ]; then
+        if true; then
             for test in $FAILURE_TESTS; do
                 file=$test.exe
                 OUT=cmdoutput

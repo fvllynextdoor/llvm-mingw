@@ -20,7 +20,7 @@ set -e
 : ${DEFAULT_MSVCRT:=ucrt}
 : ${MINGW_W64_VERSION:=ee5758234f77a6b573e415b26a1d387c46717f6b}
 
-CFGUARD_FLAGS=
+CFGUARD_FLAGS="--enable-cfguard"
 
 while [ $# -gt 0 ]; do
     case "$1" in

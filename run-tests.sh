@@ -323,14 +323,10 @@ for arch in $ARCHS; do
                         grep -q "signed integer overflow" $OUT
                         ;;
                     stacksmash)
-                        # GNU libssp writes this directly to the console,
-                        # and it can't be redirected, so we can't check for its presence.
-                        #grep -q "stack smashing detected" $OUT
+                        grep -q "stack smashing detected" $OUT
                         ;;
                     bufferoverflow-*)
-                        # GNU libssp writes this directly to the console,
-                        # and it can't be redirected, so we can't check for its presence.
-                        #grep -q "buffer overflow detected" $OUT
+                        grep -q "buffer overflow detected" $OUT
                         ;;
                     *)
                         echo Unhandled failure test $test
@@ -354,7 +350,7 @@ for arch in $ARCHS; do
                     ret=$?
                     cat $OUT
                     echo $file $i failed expectedly, returned $ret
-                    #grep -q "buffer overflow detected" $OUT
+                    grep -q "buffer overflow detected" $OUT
                     rm -f $OUT
                 fi
                 i=$(($i+1))

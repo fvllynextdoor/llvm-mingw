@@ -108,6 +108,12 @@ jobs:
     if: (github.event_name != 'schedule') || (github.repository == 'mstorsjo/llvm-mingw')
     needs: [get-versions]
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - x86_64
+          - arm64
     steps:
       - uses: actions/download-artifact@v3
         if: github.event_name == 'schedule'
@@ -128,12 +134,12 @@ jobs:
           # (and gets picked up), but only exists in native form.
           # Disable use of zstd too - it's also available, but only in native
           # form.
-          MACOS_REDIST=1 LLVM_CMAKEFLAGS="-DLLVM_ENABLE_ZSTD=OFF" ./build-all.sh $(pwd)/install/llvm-mingw --disable-clang-tools-extra --disable-lldb
+          MACOS_REDIST=1 MACOS_REDIST_ARCHS="${{matrix.arch}}" LLVM_CMAKEFLAGS="-DLLVM_ENABLE_ZSTD=OFF" ./build-all.sh $(pwd)/install/llvm-mingw --disable-clang-tools-extra --disable-lldb
           cd install
           tar -Jcf ../llvm-mingw-macos.tar.xz llvm-mingw
       - uses: actions/upload-artifact@v3
         with:
-          name: macos-toolchain
+          name: macos-${{matrix.arch}}-toolchain
           path: |
             llvm-mingw-macos.tar.xz
           retention-days: 7

@@ -104,16 +104,10 @@ jobs:
           retention-days: 7
 
   # Build a cross compiler for macOS, targeting Windows.
-  macos:
+  macos-x86_64:
     if: (github.event_name != 'schedule') || (github.repository == 'mstorsjo/llvm-mingw')
     needs: [get-versions]
     runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        arch:
-          - x86_64
-          - arm64
     steps:
       - uses: actions/download-artifact@v3
         if: github.event_name == 'schedule'
@@ -134,14 +128,57 @@ jobs:
           # (and gets picked up), but only exists in native form.
           # Disable use of zstd too - it's also available, but only in native
           # form.
-          MACOS_REDIST=1 MACOS_REDIST_ARCHS="${{matrix.arch}}" LLVM_CMAKEFLAGS="-DLLVM_ENABLE_ZSTD=OFF" ./build-all.sh $(pwd)/install/llvm-mingw --disable-clang-tools-extra --disable-lldb
+          MACOS_REDIST=1 MACOS_REDIST_ARCHS="x86_64" LLVM_CMAKEFLAGS="-DLLVM_ENABLE_ZSTD=OFF" ./build-all.sh $(pwd)/install/llvm-mingw --disable-clang-tools-extra --disable-lldb
           cd install
-          tar -Jcf ../llvm-mingw-macos.tar.xz llvm-mingw
+          tar -Jcf ../llvm-mingw-macos-x86_64.tar.xz llvm-mingw
       - uses: actions/upload-artifact@v3
         with:
-          name: macos-${{matrix.arch}}-toolchain
+          name: macos-x86_64-toolchain
           path: |
-            llvm-mingw-macos.tar.xz
+            llvm-mingw-macos-x86_64.tar.xz
+          retention-days: 7
+
+  # Cross-build an arm64 version of the toolchain, on x86_64 macOS.
+  macos-arm64:
+    if: (github.event_name != 'schedule') || (github.repository == 'mstorsjo/llvm-mingw')
+    needs: [macos-x86_64]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        if: github.event_name == 'schedule'
+        with:
+          name: versions
+      - name: Set build env vars
+        if: github.event_name == 'schedule'
+        run: |
+          . versions
+          echo Building llvm-project $LLVM_VERSION mingw-w64 $MINGW_W64_VERSION
+          cat versions >> $GITHUB_ENV
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          brew install ninja
+          # Cross-build the toolchain - but don't build runtimes, as we can't
+          # execute the newly built toolchain here.
+          MACOS_REDIST=1 MACOS_REDIST_ARCHS="arm64" LLVM_CMAKEFLAGS="-DLLVM_ENABLE_ZSTD=OFF" ./build-all.sh $(pwd)/install/llvm-mingw --disable-clang-tools-extra --disable-lldb --no-runtimes
+      - uses: actions/download-artifact@v3
+        with:
+          name: macos-x86_64-toolchain
+      - name: Unpack existing toolchain
+        run: |
+          tar -Jxf llvm-mingw-macos-x86_64.tar.xz
+          rm llvm-mingw-macos-x86_64.tar.xz
+          mv llvm-mingw llvm-mingw-native
+      - name: Assemble the cross-built toolchain
+        run: |
+          ./prepare-cross-toolchain-unix.sh $(pwd)/llvm-mingw-native $(pwd)/install/llvm-mingw
+          cd install
+          tar -Jcf ../llvm-mingw-macos-arm64.tar.xz llvm-mingw
+      - uses: actions/upload-artifact@v3
+        with:
+          name: macos-arm64-toolchain
+          path: |
+            llvm-mingw-macos-arm64.tar.xz
           retention-days: 7
 
   # Test building the toolchain on msys2 (in the mingw64 and clang64

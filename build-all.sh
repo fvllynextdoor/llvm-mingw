@@ -20,6 +20,7 @@ LLVM_ARGS=""
 MINGW_ARGS=""
 CFGUARD_ARGS="--disable-cfguard"
 MINGW_TOOLS_ARGS=""
+MINGW_LIBRARIES_ARGS=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -61,6 +62,7 @@ while [ $# -gt 0 ]; do
     --skip-include-triplet-prefix)
         MINGW_ARGS="$MINGW_ARGS $1"
         MINGW_TOOLS_ARGS="$MINGW_TOOLS_ARGS $1"
+        MINGW_LIBRARIES_ARGS="$MINGW_LIBRARIES_ARGS $1"
         ;;
     *)
         if [ -n "$PREFIX" ]; then
@@ -99,7 +101,7 @@ fi
 ./build-mingw-w64.sh $PREFIX $MINGW_ARGS $CFGUARD_ARGS
 ./build-compiler-rt.sh $PREFIX $CFGUARD_ARGS
 ./build-libcxx.sh $PREFIX $CFGUARD_ARGS
-./build-mingw-w64-libraries.sh $PREFIX $CFGUARD_ARGS
+./build-mingw-w64-libraries.sh $PREFIX $MINGW_LIBRARIES_ARGS $CFGUARD_ARGS
 ./build-compiler-rt.sh $PREFIX --build-sanitizers # CFGUARD_ARGS intentionally omitted
 ./build-libssp.sh $PREFIX $CFGUARD_ARGS
 ./build-openmp.sh $PREFIX $CFGUARD_ARGS

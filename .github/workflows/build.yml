@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         if: github.event_name == 'schedule'
         with:
           name: versions
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         if: github.event_name == 'schedule'
         with:
           name: versions
@@ -113,7 +113,7 @@ jobs:
     needs: [get-versions]
     runs-on: macos-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         if: github.event_name == 'schedule'
         with:
           name: versions
@@ -173,7 +173,7 @@ jobs:
             toolchain:p
             cmake:p
             ninja:p
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         if: github.event_name == 'schedule'
         with:
           name: versions
@@ -207,7 +207,7 @@ jobs:
           - armv7
           - aarch64
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: linux-toolchain
       - name: Unpack cross toolchain
@@ -261,7 +261,7 @@ jobs:
           install: >-
             unzip
             make
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: windows-${{matrix.arch}}-toolchain
       - name: Unpack toolchain
@@ -292,7 +292,7 @@ jobs:
           - { arch: i686, asmflag: }
           - { arch: x86_64, asmflag: -m64 }
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: windows-${{matrix.arch}}-toolchain
       - name: Unpack toolchain
@@ -359,7 +359,7 @@ jobs:
           - armv7
           - aarch64
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: linux-asserts-toolchain
       - name: Unpack cross toolchain
@@ -414,7 +414,7 @@ jobs:
             diffutils
           pacboy: >-
             nasm:p
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: windows-x86_64-toolchain
       - name: Unpack toolchain
